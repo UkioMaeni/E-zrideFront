@@ -32,6 +32,14 @@ import {Provider, useDispatch} from "react-redux";
 import {store} from "./src/store/store";
 import {SET_STEP} from "./src/store/reducers/authReducer";
 import Menu from "./src/Components/Screens/Menu";
+import Loader from "./src/Components/Screens/Loader";
+import UserInfo from "./src/Components/Screens/UserInfo";
+import AutoInfo from "./src/Components/Tabs/AutoInfo";
+import CreateRoadFrom from "./src/Components/Screens/CreateRoadFrom";
+import Map from "./src/Components/Screens/Map";
+import CreateRoadTo from "./src/Components/Screens/CreateRoadTo";
+import CreateRoadOptions from "./src/Components/Screens/CreateRoadOptions";
+import OrderInfo from "./src/Components/Screens/OrderInfo";
 
 
 const Stack = createNativeStackNavigator();
@@ -49,10 +57,18 @@ const Layout=()=>{
     },[])
     return(
         <NavigationContainer>
-            <Stack.Navigator initialRouteName={'Menu'}>
+            <Stack.Navigator initialRouteName={'Loader'} screenOptions={{freezeOnBlur:true}}>
+                <Stack.Screen  name="UserInfo" component={UserInfo} options={{headerShown: false,gestureEnabled: false}}/>
+                <Stack.Screen name="CreateRoadFrom" component={CreateRoadFrom} options={{headerShown: false}}/>
+                <Stack.Screen name="CreateRoadTo" component={CreateRoadTo} options={{headerShown: false}}/>
+                <Stack.Screen name="CreateRoadOptions" component={CreateRoadOptions} options={{headerShown: false}}/>
+                <Stack.Screen  name="Loader" component={Loader} options={{headerShown: false}}/>
                 <Stack.Screen  name="Home" component={Home} options={{headerShown: false}}/>
                 <Stack.Screen  name="Registration" component={Registartion} options={{headerShown: false}}/>
                 <Stack.Screen  name="Menu"  component={Menu} options={{headerShown: false}}/>
+                <Stack.Screen  name="AutoInfo"  component={AutoInfo} options={{headerShown: false}}/>
+                <Stack.Screen  name="Map"  component={Map} options={{headerShown: false}}/>
+                <Stack.Screen  name="OrderInfo"  component={OrderInfo} options={{headerShown: false}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )

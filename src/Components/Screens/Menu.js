@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
     Text,
     TouchableHighlight,
@@ -12,8 +12,18 @@ import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 
 const Tab = createBottomTabNavigator();
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import Search from "../Tabs/Search";
+import Message from "../Tabs/Message";
+import History from "../Tabs/History";
+import Create from "../Tabs/Create";
+import Profile from "../Tabs/Profile";
+import {useDispatch} from "react-redux";
+import {SET_CAR, SET_USER_DATA} from "../../store/reducers/userReducer";
+import AutoInfo from "../Tabs/AutoInfo";
+import {UserService} from "../../http/service/userService";
 
 function HomeScreen() {
+
     return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Text>Home!</Text>
@@ -21,18 +31,37 @@ function HomeScreen() {
     );
 }
 
-const Menu = () => {
+const Menu = ({navigation,route}) => {
+    const dispatch=useDispatch()
+    useEffect(()=>{
+        UserService.getDataAuto().then((data)=>{
+            dispatch(SET_CAR(data))
+        }).catch(()=>{})
+    },[])
 
+    console.log(route.params)
+    useEffect(()=>{
+        dispatch(SET_USER_DATA(route.params))
+    })
+
+    useEffect(()=>{
+
+        console.log('nain')
+        navigation.addListener('blur',()=>{
+            console.log('main')
+        })
+    },[navigation])
     return (
         <Tab.Navigator
             screenOptions={({route}) => ({
-
+                initialRouteName:'Create',
                 headerShown: false,
                 tabBarStyle: {
-                    paddingBottom: 10,
+                    paddingBottom: 0,
                     height: '8%',
                     display:'flex',
                     width:'100%',
+                    minHeight:'8%'
 
                 },
                 /*tabBarButton:({children})=>{
@@ -70,11 +99,11 @@ const Menu = () => {
                     return <Ionicons name={iconName} size={20} color={color}/>
                 }
             })}>
-            <Tab.Screen name={'Search'} component={HomeScreen}/>
-            <Tab.Screen name={'Create'} component={HomeScreen}/>
-            <Tab.Screen name={'History'} component={HomeScreen}/>
-            <Tab.Screen name={'Message'} component={HomeScreen}/>
-            <Tab.Screen name={'Profile'} component={HomeScreen}/>
+            <Tab.Screen name={'Search'} component={Search}/>
+            <Tab.Screen name={'Create'} component={Create}/>
+            <Tab.Screen name={'History'} component={History}/>
+            <Tab.Screen name={'Message'} component={Message}/>
+            <Tab.Screen name={'Profile'} component={Profile}/>
         </Tab.Navigator>
     );
 };
