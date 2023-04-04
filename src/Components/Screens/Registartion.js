@@ -1,20 +1,56 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Pressable, StyleSheet, Text, TextInput, View,KeyboardAvoidingView} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import generate from '../../assets/img/generate.jpg'
 import confirm from '../../assets/img/confirm.jpg'
 import {useDispatch, useSelector} from "react-redux";
 import {SET_STEP} from "../../store/reducers/authReducer";
+import {AuthService} from "../../http/service/authService";
+import {SET_ACCESS, SET_CODE} from "../../store/reducers/userReducer";
+import {setToken} from "../../AsyncStorage/setToken";
+import {getToken} from "../../AsyncStorage/getToken";
+import {UserService} from "../../http/service/userService";
 const Registartion = ({navigation}) => {
+    const {otp}=useSelector(state=>state.user)
     const [phone,setPhone]=useState('+1')
     const[code,setCode]=useState('')
     const [error,setError]=useState(false)
     const dispatch=useDispatch()
     const {step}=useSelector(state=>state.step)
+
     ////обработчик для input Number
     const handleChange=(e)=>{
         setPhone(e)
         if(error)setError(false)
+    }
+    ///кнопка отправки кода на номер
+    function handleGenerate() {
+        if(step==='Registration'){
+            if(validationNumber(phone)){
+                AuthService.registration(phone).then(otp=>{
+                    console.log(otp)
+                    dispatch(SET_CODE(otp))
+                    dispatch(SET_STEP('Confirm'))
+                })
+
+            }else{
+                setError(true)
+            }
+        }
+        if(step==='Confirm'){
+            AuthService.confirm(phone,code).then(({access,refresh})=>{
+                setToken(access,refresh).then(()=>{
+                    getToken().then(({access,refresh})=>{
+                        dispatch(SET_ACCESS(access))
+                        UserService.dataUser(access).then(()=>{}).catch(()=>{
+                            navigation.navigate('UserInfo')
+                        })
+
+                    })
+                })
+            })
+        }
+
     }
     ////// вариант для показа картинки,слов
     const variantImg={
@@ -30,8 +66,8 @@ const Registartion = ({navigation}) => {
         'Confirm':<Text style={styles.textPre}>Enter the OTP sent to <Text style={{fontWeight:'bold',}}>{phone}</Text></Text>
     }
     const variantInput={
-        'Registration': <TextInput style={{...styles.input,borderColor:error?'red':'#111111'}} keyboardType={"phone-pad"}  value={phone} onChangeText={handleChange}/>,
-        'Confirm':<TextInput style={styles.code} keyboardType={"phone-pad"} maxLength={4} value={code} onChangeText={setCode}/>
+        'Registration': <TextInput returnKeyType="send" onSubmitEditing={handleGenerate} style={{...styles.input,borderColor:error?'red':'#111111'}} keyboardType={"phone-pad"}  value={phone} onChangeText={handleChange}/>,
+        'Confirm':<TextInput returnKeyType="send" onSubmitEditing={handleGenerate} style={styles.code} keyboardType={"number-pad"} maxLength={6} value={code} onChangeText={setCode}/>
     }
 
     const textBtn={
@@ -45,14 +81,7 @@ const Registartion = ({navigation}) => {
         return regExp.test(number)
     }
 
-    ///кнопка отправки кода на номер
-    function handleGenerate() {
-        if(validationNumber(phone)){
-            dispatch(SET_STEP('Confirm'))
-        }else{
-            setError(true)
-        }
-    }
+
     ////обрааботчик отмены
     function handleCancel() {
         navigation.navigate('Home')
@@ -71,6 +100,7 @@ const Registartion = ({navigation}) => {
                 </Pressable>
             </View>
             <View style={styles.inputWrapper}>
+                <Text >Code {otp}</Text>
                 {variantImg[step]}
                 {varianText[step]}
                 {variantPostText[step]}
@@ -145,7 +175,7 @@ const styles=StyleSheet.create({
         fontWeight:'bold',
         borderRadius:7,
         textAlign:'center',
-        letterSpacing:20
+        letterSpacing:15
     },
     btn1:{
         width:'90%',

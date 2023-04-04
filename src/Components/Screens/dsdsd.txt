@@ -1,0 +1,68 @@
+const HW=useRef( new Animated.Value(120)).current
+    const opacity=useRef(new Animated.Value(0.2)).current
+    const radius=useRef(new Animated.Value(0)).current
+    const HWStart=()=>{
+        HW.setValue(120)
+
+        Animated.timing(HW,{
+            toValue:180,
+            duration:150,
+            easing:Easing.linear,
+            useNativeDriver:false
+        }).start(()=>HW.setValue(0))
+    }
+    const radiusStart=()=>{
+        radius.setValue(60)
+
+        Animated.timing(radius,{
+            toValue:100,
+            duration:150,
+            easing:Easing.linear,
+            useNativeDriver:false
+        }).start(()=>radius.setValue(0))
+    }
+    const animStart=()=>{
+        HWStart()
+        radiusStart()
+    }
+    return (
+        <View style={styles.wrapper}>
+            <View style={{
+
+                paddingHorizontal:30,
+                overflow:'hidden'
+            }}>
+                <Pressable  style={[styles.btn,{display:'flex',alignItems:'center',justifyContent:'center',backgroundColor:'transparent',pointerEvents:'box-none'}]} onPress={animStart}>
+                    <Pressable  >
+                        <Text style={{zIndex:2}} onPress={animStart}>ddd</Text>
+                    </Pressable>
+                    <Animated.View style={{
+                        width:HW,
+                        height:HW,
+                        backgroundColor:'gray',
+                        borderRadius:radius,
+                        position:'absolute',
+                        opacity:opacity
+                    }}>
+
+                    </Animated.View>
+                </Pressable>
+            </View>
+        </View>
+    );
+};
+const styles=StyleSheet.create({
+    wrapper:{
+        flex:1,
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+
+    },
+    btn:{
+        paddingVertical:10,
+        paddingHorizontal:30,
+        height:100,
+        width:120,
+    }
+})
